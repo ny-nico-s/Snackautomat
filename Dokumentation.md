@@ -1,5 +1,6 @@
 # Snackautomat
-- kurze Einleitung
+Wir programmieren einen Snackautomaten. Dieser muss Käufe inklusive Kaufabbrüche, finanzielle Transaktionen, laufende Inventar-Verwaltung und Nachbestellungen verwalten können. Dies erledigten wir in einer 3er-Gruppe mit einer durchmischten Aufgabenteilung.
+Mögliche Klassen: Starter, Simulation, Customer.
 
 ## IPERKA
 ### Informieren
@@ -18,8 +19,14 @@ Donnerstag Nachmittag würden Feinschliffe für die Funktionalität des Programm
 
 
 ### Entscheiden
+Wir entschieden uns, unsere Programmstruktur simpel zu halten, ohne zu grosse Inventare für den Snackautomaten oder komplexe finanzielle Abläufe. Unsere Präsentation würde zur Hälfte unser Vorgehen darstellen und zur Hälfte eine Demo unseres Programms sein. Diese Gewichtung ist ausgeglichen und zugleich flexibel.
+
+
 ### Realisieren
+Wir arbeiteten bezüglich des Codes so gut wie möglich testgetrieben. Dies wird durch die Aufteilung in Branches erleichtert, denn so kann jede Person ihren Code regelmässig in Isolation testen und so früh genug Fehler erkennen. Dieses Testen wäre zunächst statisch. So können Fehler ausgebügelt werden bevor das dynamische Testen beginnt. So können wir allfällige Fehlerquellen früh genug unter Kontrolle behalten.
+
+
 ### Kontrollieren
 ### Auswerten
 
-## Anmerkungen
+## Fazit
