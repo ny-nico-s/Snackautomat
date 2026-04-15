@@ -13,5 +13,26 @@ public class Customer {
     public void getInsertedMoney() {}
     public boolean hasSufficientFunds() { return false; }
 
+    //constructor for fields
+    public Customer(double insertedMoney, boolean cancelled) {
+        this.insertedMoney = insertedMoney;
+        this.cancelled = cancelled;
+    }
 
+    //right now redundant, because everything is still set to public
+    //getters
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    //setters
+    public void setInsertedMoney(double insertedMoney) {
+        this.insertedMoney = insertedMoney;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    
 }
