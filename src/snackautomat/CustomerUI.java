@@ -4,9 +4,12 @@ import javax.swing.JOptionPane;
 
 public class CustomerUI {
 
-    // Hardcoded products until inventory class is available
-    static final String[] PRODUCT_NAMES  = {"Chips", "Schoggi", "Wasser", "Sandwich"};
-    static final double[] PRODUCT_PRICES = {2.50,     1.80,      1.00,     4.50};
+    static final Product[] PRODUCTS = {
+        new Product("P1", "Chips",    2.50, 10),
+        new Product("P2", "Schoggi",  1.80, 10),
+        new Product("P3", "Wasser",   1.00, 10),
+        new Product("P4", "Sandwich", 4.50, 10)
+    };
 
     private final Customer customer;
 
@@ -75,9 +78,17 @@ public class CustomerUI {
         if (selected == null) return;
 
         int index = findProductIndex(selected);
-        customer.selectProduct(PRODUCT_NAMES[index], PRODUCT_PRICES[index]);
+        Product product = PRODUCTS[index];
+
+        if (!product.isAvailable()) {
+            JOptionPane.showMessageDialog(null, product.getName() + " ist leider ausverkauft.");
+            return;
+        }
+
+        customer.selectProduct(product.getName(), product.getPrice());
 
         if (customer.hasSufficientFunds()) {
+            product.reduceQuantity();
             JOptionPane.showMessageDialog(null,
                 "Gewählt: " + customer.selectedProduct +
                 "\nPreis: CHF " + String.format("%.2f", customer.productPrice) +
@@ -142,16 +153,16 @@ public class CustomerUI {
     }
 
     private static String[] buildProductLabels() {
-        String[] labels = new String[PRODUCT_NAMES.length];
-        for (int i = 0; i < PRODUCT_NAMES.length; i++) {
-            labels[i] = PRODUCT_NAMES[i] + " — CHF " + String.format("%.2f", PRODUCT_PRICES[i]);
+        String[] labels = new String[PRODUCTS.length];
+        for (int i = 0; i < PRODUCTS.length; i++) {
+            labels[i] = PRODUCTS[i].getName() + " — CHF " + String.format("%.2f", PRODUCTS[i].getPrice());
         }
         return labels;
     }
 
     private static int findProductIndex(String label) {
-        for (int i = 0; i < PRODUCT_NAMES.length; i++) {
-            if (label.startsWith(PRODUCT_NAMES[i])) return i;
+        for (int i = 0; i < PRODUCTS.length; i++) {
+            if (label.startsWith(PRODUCTS[i].getName())) return i;
         }
         return 0;
     }
