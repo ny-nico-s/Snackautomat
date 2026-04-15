@@ -90,10 +90,7 @@ public class CustomerUI {
 
         if (customer.hasSufficientFunds()) {
             product.reduceStock();
-            JOptionPane.showMessageDialog(null,
-                "Gewählt: " + customer.selectedProduct +
-                "\nPreis: CHF " + String.format("%.2f", customer.productPrice) +
-                "\nRückgeld: CHF " + String.format("%.2f", customer.getChange()));
+            printReceipt(customer.selectedProduct, customer.productPrice, customer.getInsertedMoney(), customer.getChange());
             customer.resetSession();
         } else {
             JOptionPane.showMessageDialog(null,
