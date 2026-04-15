@@ -7,7 +7,6 @@ import java.util.List;
 public class VendingMachine {
     private final List<Product> products = new ArrayList<>();
     private final String secretKey;
-    private double insertedMoney;
     private boolean initialized;
 
     public VendingMachine(String secretKey) {
@@ -45,38 +44,6 @@ public class VendingMachine {
         throw new IllegalArgumentException("Unknown product id: " + productId);
     }
 
-    public void insertMoney(double amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than 0.");
-        }
-
-        insertedMoney += amount;
-    }
-
-    public double buyProduct(String productId) {
-        Product product = getProduct(productId);
-
-        if (product.getStock() <= 0) {
-            throw new IllegalStateException("Product is sold out.");
-        }
-
-        if (insertedMoney < product.getPrice()) {
-            throw new IllegalStateException("Not enough money inserted.");
-        }
-
-        product.reduceStock();
-
-        double change = insertedMoney - product.getPrice();
-        insertedMoney = 0;
-        return change;
-    }
-
-    public double cancelPurchase() {
-        double moneyToReturn = insertedMoney;
-        insertedMoney = 0;
-        return moneyToReturn;
-    }
-
     public void restock(String secretKeyInput, String productId, int amount) {
         checkSecretKeyOrThrow(secretKeyInput);
 
@@ -101,10 +68,6 @@ public class VendingMachine {
         product.setStock(newStock);
     }
 
-    public double getInsertedMoney() {
-        return insertedMoney;
-    }
-
     public boolean isInitialized() {
         return initialized;
     }
@@ -114,62 +77,5 @@ public class VendingMachine {
             throw new IllegalArgumentException("Wrong secret key.");
         }
     }
-
-    public static class Product {
-        private final String productId;
-        private String name;
-        private double price;
-        private int stock;
-
-        public Product(String productId, String name, double price, int stock) {
-            this.productId = productId;
-            this.name = name;
-            setPrice(price);
-            setStock(stock);
-        }
-
-        public String getProductId() {
-            return productId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public double getPrice() {
-            return price;
-        }
-
-        public int getStock() {
-            return stock;
-        }
-
-        public void reduceStock() {
-            stock--;
-        }
-
-        public void restock(int amount) {
-            stock += amount;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setPrice(double price) {
-            if (price <= 0) {
-                throw new IllegalArgumentException("Price must be greater than 0.");
-            }
-
-            this.price = price;
-        }
-
-        public void setStock(int stock) {
-            if (stock < 0) {
-                throw new IllegalArgumentException("Stock must not be negative.");
-            }
-
-            this.stock = stock;
-        }
-    }
 }
+

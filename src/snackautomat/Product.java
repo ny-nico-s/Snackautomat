@@ -1,21 +1,20 @@
 package snackautomat;
 
 public class Product {
-    private String privateId;
+    private final String productId;
     private String name;
     private double price;
-    private int quantity;
+    private int stock;
 
-
-    public Product(String privateId, String name, double price, int stock) {
-        this.privateId = privateId;
+    public Product(String productId, String name, double price, int stock) {
+        this.productId = productId;
         this.name = name;
         this.price = price;
-        this.quantity = stock;
+        this.stock = stock;
     }
 
-    public String getPrivateId() {
-        return privateId;
+    public String getProductId() {
+        return productId;
     }
 
     public String getName() {
@@ -26,20 +25,24 @@ public class Product {
         return price;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getStock() {
+        return stock;
     }
 
-    public void reduceQuantity() {
-        if (quantity > 0) {
-            quantity--;
+    public void reduceStock() {
+        if (stock > 0) {
+            stock--;
         }
     }
 
     public void restock(int amount) {
         if (amount > 0) {
-            quantity += amount;
+            stock += amount;
         }
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPrice(double price) {
@@ -48,8 +51,13 @@ public class Product {
         }
     }
 
+    public void setStock(int stock) {
+        if (stock >= 0) {
+            this.stock = stock;
+        }
+    }
+
     public boolean isAvailable() {
-        return quantity > 0;
+        return stock > 0;
     }
 }
-
