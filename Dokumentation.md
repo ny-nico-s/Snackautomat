@@ -25,8 +25,14 @@ Wir entschieden uns, unsere Programmstruktur simpel zu halten, ohne zu grosse In
 ### Realisieren
 Wir arbeiteten bezüglich des Codes so gut wie möglich testgetrieben. Dies wird durch die Aufteilung in Branches erleichtert, denn so kann jede Person ihren Code regelmässig in Isolation testen und so früh genug Fehler erkennen. Dieses Testen wäre zunächst statisch. So können Fehler ausgebügelt werden bevor das dynamische Testen beginnt. So können wir allfällige Fehlerquellen früh genug unter Kontrolle behalten.
 
+Während der Realisierung kam es kaum zu Merge-Konflikten, da wir auf separaten Branches und separaten Klassen arbeiteten, somit verlieft unser Plan geschmeidig. Dies gab uns genug Zeit, zusätzliche UI-Features mit JOptionPane einzufügen inklusive Bilder, welches ein schönes Interface für den Snackautomaten ermöglichte. 
+
+Wir arbeiteten Phasenweise, um eine Balance zwischen Trennung und Merges zu erlauben. So konnten wir ein Code-Chaos verhindern aber dennoch regelmässig eine einheitliche Grundlage unseres Programms aufrechterhalten. 
 
 ### Kontrollieren
+Wir testeten regelmässig das ganze Programm und kommunizierten auf Teams allfällige Probleme. Dies geschah im Durchschnitt stündlich, je nach Phase der Entwicklung.
+
+
 ### Auswerten
 
 ## Fazit
