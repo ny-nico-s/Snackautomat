@@ -1,16 +1,56 @@
 package snackautomat;
 
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class CustomerUI {
 
+    private static final Map<String, String> PRODUCT_IMAGES = new HashMap<>();
+    static {
+        // Cans
+        PRODUCT_IMAGES.put("Fresh",           "01_can_green.png");
+        PRODUCT_IMAGES.put("Pineapple",       "02_can_pineapple.png");
+        PRODUCT_IMAGES.put("Cola",            "03_can_cola.png");
+        PRODUCT_IMAGES.put("Red Bull",        "04_can_energy.png");
+        PRODUCT_IMAGES.put("Tiger",           "05_can_striped.png");
+        PRODUCT_IMAGES.put("Coconut Water",   "06_can_coconut.png");
+        // Bottles
+        PRODUCT_IMAGES.put("Soda",            "07_bottle_soda.png");
+        PRODUCT_IMAGES.put("Sparkling Water", "08_bottle_sparkling.png");
+        PRODUCT_IMAGES.put("Orange Juice",    "09_bottle_juice_orange.png");
+        PRODUCT_IMAGES.put("Lemonade",        "10_bottle_yellow.png");
+        // Snacks
+        PRODUCT_IMAGES.put("Sweet Candy",     "11_snack_sweet.png");
+        PRODUCT_IMAGES.put("Chocolate Bar",   "12_snack_brown.png");
+        PRODUCT_IMAGES.put("Twix",            "13_snack_red_white.png");
+        PRODUCT_IMAGES.put("Mint Chips",      "14_snack_green.png");
+        PRODUCT_IMAGES.put("Chips",           "15_snack_teal.png");
+        PRODUCT_IMAGES.put("Cheese Crackers", "16_snack_yellow.png");
+        PRODUCT_IMAGES.put("Strawberry Mix",  "17_snack_pink.png");
+        PRODUCT_IMAGES.put("Star Snack",      "18_item_18.png");
+    }
+
     private final Customer customer;
     private final VendingMachine vendingMachine;
+    private final ImageIcon machineIcon;
+    private final List<String> sessionPurchases = new ArrayList<>();
 
     public CustomerUI(Customer customer, VendingMachine vendingMachine) {
         this.customer = customer;
         this.vendingMachine = vendingMachine;
+        this.machineIcon = loadScaledIcon("machine_full.png", 300, -1);
     }
 
     public void start() {
@@ -27,11 +67,11 @@ public class CustomerUI {
         while (true) {
             int choice = JOptionPane.showOptionDialog(
                 null,
-                "Was möchten Sie tun?\nEingeworfen: CHF " + String.format("%.2f", customer.getInsertedMoney()),
+                buildMenuPanel(),
                 "Snackautomat",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
-                null,
+                machineIcon,
                 menuOptions,
                 menuOptions[0]
             );
@@ -44,6 +84,49 @@ public class CustomerUI {
             else if (choice == 5) resetSession();
             else break;
         }
+    }
+
+    private JPanel buildMenuPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JLabel status = new JLabel("Was möchten Sie tun?   |   Eingeworfen: CHF "
+                + String.format("%.2f", customer.getInsertedMoney()));
+        status.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(status);
+
+        if (!sessionPurchases.isEmpty()) {
+            panel.add(Box.createVerticalStrut(10));
+
+            JPanel inventoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+            inventoryPanel.setBorder(BorderFactory.createTitledBorder("Gekaufte Produkte"));
+            inventoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            for (String name : sessionPurchases) {
+                JPanel item = new JPanel();
+                item.setLayout(new BoxLayout(item, BoxLayout.Y_AXIS));
+
+                String filename = PRODUCT_IMAGES.get(name);
+                if (filename != null) {
+                    ImageIcon icon = loadScaledIcon(filename, -1, 35);
+                    if (icon != null) {
+                        JLabel img = new JLabel(icon);
+                        img.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        item.add(img);
+                    }
+                }
+
+                JLabel nameLabel = new JLabel(name);
+                nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                item.add(nameLabel);
+
+                inventoryPanel.add(item);
+            }
+
+            panel.add(inventoryPanel);
+        }
+
+        return panel;
     }
 
     private void insertMoney() {
@@ -90,8 +173,9 @@ public class CustomerUI {
 
         if (customer.hasSufficientFunds()) {
             product.reduceStock();
+            sessionPurchases.add(product.getName());
             printReceipt(customer.selectedProduct, customer.productPrice, customer.getInsertedMoney(), customer.getChange());
-            customer.resetSession();
+            customer.completePurchase();
         } else {
             JOptionPane.showMessageDialog(null,
                 "Nicht genug Geld eingeworfen!\n" +
@@ -119,10 +203,9 @@ public class CustomerUI {
     }
 
     private void cancelPurchase() {
-        customer.cancelPurchase();
+        customer.clearSelection();
         JOptionPane.showMessageDialog(null,
-            "Kauf abgebrochen.\nRückgabe: CHF " + String.format("%.2f", customer.getInsertedMoney()));
-        customer.resetSession();
+            "Kauf abgebrochen.\nIhr Guthaben: CHF " + String.format("%.2f", customer.getInsertedMoney()));
     }
 
     private void returnMoney() {
@@ -146,6 +229,7 @@ public class CustomerUI {
             "Session wirklich zurücksetzen?", "Bestätigen", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             customer.resetSession();
+            sessionPurchases.clear();
             JOptionPane.showMessageDialog(null, "Session zurückgesetzt.");
         }
     }
@@ -165,5 +249,13 @@ public class CustomerUI {
             if (label.startsWith(p.getName())) return p;
         }
         return vendingMachine.getProducts().get(0);
+    }
+
+    private ImageIcon loadScaledIcon(String filename, int width, int height) {
+        java.net.URL url = getClass().getResource("/snackautomat/resources/images/" + filename);
+        if (url == null) return null;
+        ImageIcon raw = new ImageIcon(url);
+        Image scaled = raw.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaled);
     }
 }

@@ -31,6 +31,21 @@ public class Customer {
         return insertedMoney - productPrice;
     }
 
+    // Deducts the product price and clears the selection — inserted money balance carries over.
+    public void completePurchase() {
+        this.insertedMoney -= this.productPrice;
+        this.cancelled = false;
+        this.productPrice = 0;
+        this.selectedProduct = null;
+    }
+
+    // Clears the current product selection without touching the money.
+    public void clearSelection() {
+        this.cancelled = false;
+        this.productPrice = 0;
+        this.selectedProduct = null;
+    }
+
     public void resetSession() {
         this.insertedMoney = 0;
         this.cancelled = false;

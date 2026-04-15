@@ -20,9 +20,27 @@ public class VendingMachine {
             return;
         }
 
-        products.add(new Product("A1", "Twix", 2.00, 5));
-        products.add(new Product("A2", "Cola", 2.50, 5));
-        products.add(new Product("A3", "Red Bull", 2.50, 5));
+        // Cans
+        products.add(new Product("C1", "Fresh",          2.00, 5));
+        products.add(new Product("C2", "Pineapple",      2.00, 5));
+        products.add(new Product("C3", "Cola",           2.50, 5));
+        products.add(new Product("C4", "Red Bull",       2.50, 5));
+        products.add(new Product("C5", "Tiger",          2.00, 5));
+        products.add(new Product("C6", "Coconut Water",  2.50, 5));
+        // Bottles
+        products.add(new Product("B1", "Soda",           1.50, 5));
+        products.add(new Product("B2", "Sparkling Water",1.50, 5));
+        products.add(new Product("B3", "Orange Juice",   2.50, 5));
+        products.add(new Product("B4", "Lemonade",       2.00, 5));
+        // Snacks
+        products.add(new Product("S1", "Sweet Candy",    1.50, 5));
+        products.add(new Product("S2", "Chocolate Bar",  2.00, 5));
+        products.add(new Product("S3", "Twix",           2.00, 5));
+        products.add(new Product("S4", "Mint Chips",     1.80, 5));
+        products.add(new Product("S5", "Chips",          1.80, 5));
+        products.add(new Product("S6", "Cheese Crackers",1.80, 5));
+        products.add(new Product("S7", "Strawberry Mix", 1.50, 5));
+        products.add(new Product("S8", "Star Snack",     1.80, 5));
         initialized = true;
     }
 
