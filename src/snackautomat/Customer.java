@@ -3,29 +3,53 @@ package snackautomat;
 public class Customer {
     double insertedMoney;
     boolean cancelled;
+    double productPrice;
+    String selectedProduct;
 
-
-    public void insertMoney(double insertedMoney) {}
-    public void selectProduct() {}
-    public void cancelPurchase() {}
-    public double getChange() { return 0; }
-    public void resetSession(){}
-    public void getInsertedMoney() {}
-    public boolean hasSufficientFunds() { return false; }
-
-    //constructor for fields
     public Customer(double insertedMoney, boolean cancelled) {
         this.insertedMoney = insertedMoney;
         this.cancelled = cancelled;
     }
 
-    //right now redundant, because everything is still set to public
-    //getters
+    public void insertMoney(double amount) {
+        this.insertedMoney += amount;
+    }
+
+    public void selectProduct(String name, double price) {
+        this.selectedProduct = name;
+        this.productPrice = price;
+    }
+
+    // placeholder — will be wired to inventory later
+    public void selectProduct() {}
+
+    public void cancelPurchase() {
+        this.cancelled = true;
+    }
+
+    public double getChange() {
+        return insertedMoney - productPrice;
+    }
+
+    public void resetSession() {
+        this.insertedMoney = 0;
+        this.cancelled = false;
+        this.productPrice = 0;
+        this.selectedProduct = null;
+    }
+
+    public double getInsertedMoney() {
+        return insertedMoney;
+    }
+
+    public boolean hasSufficientFunds() {
+        return insertedMoney >= productPrice;
+    }
+
     public boolean isCancelled() {
         return cancelled;
     }
 
-    //setters
     public void setInsertedMoney(double insertedMoney) {
         this.insertedMoney = insertedMoney;
     }
@@ -33,6 +57,4 @@ public class Customer {
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
-
-    
 }
