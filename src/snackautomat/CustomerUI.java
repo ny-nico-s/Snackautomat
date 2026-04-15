@@ -104,6 +104,23 @@ public class CustomerUI {
         }
     }
 
+    private void printReceipt(String productName, double price, double paid, double change) {
+        String receipt =
+                "=============================\n" +
+                        "        SNACKAUTOMAT         \n" +
+                        "=============================\n" +
+                        "Produkt:    " + productName + "\n" +
+                        "Preis:      CHF " + String.format("%.2f", price) + "\n" +
+                        "-----------------------------\n" +
+                        "Eingeworfen: CHF " + String.format("%.2f", paid) + "\n" +
+                        "Rückgeld:    CHF " + String.format("%.2f", change) + "\n" +
+                        "=============================\n" +
+                        "   Danke für Ihren Einkauf!  \n" +
+                        "=============================";
+
+        JOptionPane.showMessageDialog(null, receipt, "Kassenbon", JOptionPane.PLAIN_MESSAGE);
+    }
+
     private void cancelPurchase() {
         customer.cancelPurchase();
         JOptionPane.showMessageDialog(null,
