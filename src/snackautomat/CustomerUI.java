@@ -19,6 +19,7 @@ public class CustomerUI {
             "Geld einwerfen",
             "Produkt wählen",
             "Kauf abbrechen",
+            "Geld zurückgeben",
             "Eingeworfenes Geld anzeigen",
             "Session zurücksetzen",
             "Beenden"
@@ -39,8 +40,9 @@ public class CustomerUI {
             if      (choice == 0) insertMoney();
             else if (choice == 1) selectProduct();
             else if (choice == 2) cancelPurchase();
-            else if (choice == 3) showInsertedMoney();
-            else if (choice == 4) resetSession();
+            else if (choice == 3) returnMoney();
+            else if (choice == 4) showInsertedMoney();
+            else if (choice == 5) resetSession();
             else break;
         }
     }
@@ -95,6 +97,17 @@ public class CustomerUI {
         JOptionPane.showMessageDialog(null,
             "Kauf abgebrochen.\nRückgabe: CHF " + String.format("%.2f", customer.getInsertedMoney()));
         customer.resetSession();
+    }
+
+    private void returnMoney() {
+        double amount = customer.getInsertedMoney();
+        if (amount <= 0) {
+            JOptionPane.showMessageDialog(null, "Kein Geld eingeworfen.");
+            return;
+        }
+        customer.resetSession();
+        JOptionPane.showMessageDialog(null,
+            "Rückgabe: CHF " + String.format("%.2f", amount));
     }
 
     private void showInsertedMoney() {
