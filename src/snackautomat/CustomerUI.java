@@ -1,7 +1,10 @@
 package snackautomat;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +64,7 @@ public class CustomerUI {
             "Geld zurückgeben",
             "Eingeworfenes Geld anzeigen",
             "Session zurücksetzen",
+            "Nachfüllen",
             "Beenden"
         };
 
@@ -82,21 +86,25 @@ public class CustomerUI {
             else if (choice == 3) returnMoney();
             else if (choice == 4) showInsertedMoney();
             else if (choice == 5) resetSession();
+            else if (choice == 6) restockWithKey();
             else break;
         }
     }
 
     private JPanel buildMenuPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel root = new JPanel(new BorderLayout(20, 0));
+
+        // --- LEFT: status + session inventory ---
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
 
         JLabel status = new JLabel("Was möchten Sie tun?   |   Eingeworfen: CHF "
                 + String.format("%.2f", customer.getInsertedMoney()));
         status.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(status);
+        left.add(status);
 
         if (!sessionPurchases.isEmpty()) {
-            panel.add(Box.createVerticalStrut(10));
+            left.add(Box.createVerticalStrut(10));
 
             JPanel inventoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
             inventoryPanel.setBorder(BorderFactory.createTitledBorder("Gekaufte Produkte"));
@@ -119,14 +127,37 @@ public class CustomerUI {
                 JLabel nameLabel = new JLabel(name);
                 nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                 item.add(nameLabel);
-
                 inventoryPanel.add(item);
             }
 
-            panel.add(inventoryPanel);
+            left.add(inventoryPanel);
         }
 
-        return panel;
+        root.add(left, BorderLayout.CENTER);
+
+        // --- RIGHT: live stock counter ---
+        JPanel stockGrid = new JPanel(new GridLayout(0, 2, 12, 3));
+        stockGrid.setBorder(BorderFactory.createTitledBorder("Bestand"));
+
+        for (Product p : vendingMachine.getProducts()) {
+            JLabel nameLabel  = new JLabel(p.getName());
+            JLabel countLabel = new JLabel(p.getStock() + " / " + Product.MAX_STOCK);
+
+            if (p.getStock() == 0) {
+                countLabel.setForeground(Color.RED);
+            } else if (p.getStock() <= 5) {
+                countLabel.setForeground(Color.ORANGE);
+            } else {
+                countLabel.setForeground(new Color(0, 140, 0));
+            }
+
+            stockGrid.add(nameLabel);
+            stockGrid.add(countLabel);
+        }
+
+        root.add(stockGrid, BorderLayout.EAST);
+
+        return root;
     }
 
     private void insertMoney() {
@@ -231,6 +262,21 @@ public class CustomerUI {
             customer.resetSession();
             sessionPurchases.clear();
             JOptionPane.showMessageDialog(null, "Session zurückgesetzt.");
+        }
+    }
+
+    private void restockWithKey() {
+        String input = JOptionPane.showInputDialog(null,
+            "Nachfüll-Code eingeben:", "Nachfüllen", JOptionPane.PLAIN_MESSAGE);
+        if (input == null) return;
+        if (vendingMachine.checkRestockKey(input)) {
+            vendingMachine.restockAll(input);
+            JOptionPane.showMessageDialog(null,
+                "Alle Produkte wurden auf " + Product.MAX_STOCK + " Stück aufgefüllt.",
+                "Nachfüllen erfolgreich", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null,
+                "Falscher Code.", "Fehler", JOptionPane.ERROR_MESSAGE);
         }
     }
 

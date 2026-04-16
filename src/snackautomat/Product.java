@@ -1,7 +1,11 @@
 package snackautomat;
 
 public class Product {
+<<<<<<< HEAD
     public static final int MAX_STOCK = 10;
+=======
+    public static final int MAX_STOCK = 20;
+>>>>>>> main
 
     private final String productId;
     private String name;
@@ -12,7 +16,7 @@ public class Product {
         this.productId = productId;
         this.name = name;
         this.price = price;
-        this.stock = stock;
+        this.stock = Math.min(stock, MAX_STOCK);
     }
 
     public String getProductId() {
@@ -39,8 +43,12 @@ public class Product {
 
     public void restock(int amount) {
         if (amount > 0) {
-            stock += amount;
+            stock = Math.min(stock + amount, MAX_STOCK);
         }
+    }
+
+    public void refill() {
+        stock = MAX_STOCK;
     }
 
     public void setName(String name) {
@@ -55,7 +63,7 @@ public class Product {
 
     public void setStock(int stock) {
         if (stock >= 0) {
-            this.stock = stock;
+            this.stock = Math.min(stock, MAX_STOCK);
         }
     }
 
