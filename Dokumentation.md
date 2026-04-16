@@ -34,5 +34,13 @@ Wir testeten regelmässig das ganze Programm und kommunizierten auf Teams allfä
 
 
 ### Auswerten
+Rückblickend war unser Vorgehen insgesamt erfolgreich. Die frühe Aufteilung der Aufgaben, die klare Strukturierung nach IPERKA und die Arbeit mit Branches halfen uns dabei, effizient und organisiert zu bleiben. Besonders positiv war, dass wir trotz der Deepwork-Phase ohne direkten Austausch weiterhin am gleichen Ziel arbeiteten und kaum Missverständnisse entstanden.
+
+Ebenfalls bewährte sich unsere Entscheidung, die Programmstruktur eher einfach zu halten. Dadurch konnten wir die wichtigsten Funktionen zuverlässig umsetzen, anstatt uns in unnötiger Komplexität zu verlieren. Die regelmässigen Tests und die laufende Kommunikation führten dazu, dass Probleme früh entdeckt und behoben werden konnten.
+
+Verbesserungspotenzial sehen wir vor allem bei der noch genaueren Zeitplanung einzelner Arbeitspakete. Teilweise zeigte sich, dass gewisse Aufgaben mehr Zeit beanspruchten als ursprünglich angenommen. Für ein zukünftiges Projekt würden wir deshalb noch klarere Zwischenziele und Zeitpuffer einplanen.
 
 ## Fazit
+Insgesamt war das Projekt ein Erfolg. Wir konnten einen funktionsfähigen Snackautomaten entwickeln, der zentrale Anforderungen wie Käufe, Kaufabbrüche, finanzielle Abläufe, Inventarverwaltung und Nachbestellungen abdecken konnte. Gleichzeitig gelang es uns, die Arbeit im Team gut zu organisieren und unsere Dokumentation sinnvoll nach IPERKA aufzubauen.
+
+Besonders wichtig für den Erfolg waren die gründliche Vorbereitung, die saubere Aufgabenverteilung, die Arbeit mit GitHub-Branches und das regelmässige Testen. Das Projekt zeigte uns, wie wertvoll eine gute Planung und klare Kommunikation in der Softwareentwicklung sind. Für zukünftige Gruppenarbeiten nehmen wir vor allem mit, dass eine einfache, gut durchdachte Lösung oft effizienter ist als ein unnötig komplexer Ansatz.
