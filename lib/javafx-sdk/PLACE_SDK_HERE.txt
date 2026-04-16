@@ -1,0 +1,21 @@
+Download JavaFX SDK 24 (Windows x64) from:
+https://gluonhq.com/products/javafx/
+
+Choose:
+  Version : 24
+  OS      : Windows
+  Type    : SDK
+
+After downloading, extract the zip so this folder looks like:
+
+  lib/
+  └── javafx-sdk/
+      ├── PLACE_SDK_HERE.txt   ← this file
+      └── lib/
+          ├── javafx.base.jar
+          ├── javafx.controls.jar
+          ├── javafx.graphics.jar
+          ├── javafx.fxml.jar
+          └── (other jars + .dll files)
+
+Once the jars are in place, use the "Starter (JavaFX)" run configuration in IntelliJ.
