@@ -1,6 +1,8 @@
 package snackautomat;
 
 public class Product {
+    public static final int MAX_STOCK = 10;
+
     private final String productId;
     private String name;
     private double price;

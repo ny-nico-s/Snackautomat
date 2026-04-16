@@ -90,6 +90,17 @@ public class VendingMachine {
         return initialized;
     }
 
+    public boolean checkRestockKey(String input) {
+        return checkSecretKey(input);
+    }
+
+    public void restockAll(String secretKeyInput) {
+        checkSecretKeyOrThrow(secretKeyInput);
+        for (Product product : products) {
+            product.setStock(Product.MAX_STOCK);
+        }
+    }
+
     private void checkSecretKeyOrThrow(String input) {
         if (!checkSecretKey(input)) {
             throw new IllegalArgumentException("Wrong secret key.");

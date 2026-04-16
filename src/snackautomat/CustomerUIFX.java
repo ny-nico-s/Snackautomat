@@ -167,9 +167,11 @@ public class CustomerUIFX extends Application {
             }
         }
 
-        ColumnConstraints col = new ColumnConstraints();
-        col.setHgrow(Priority.ALWAYS);
-        grid.getColumnConstraints().addAll(col, col);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.ALWAYS);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(col1, col2);
         return grid;
     }
 
@@ -334,11 +336,18 @@ public class CustomerUIFX extends Application {
     }
 
     private void restockWithKey() {
-        TextInputDialog dlg = new TextInputDialog();
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Code eingeben");
+
+        Dialog<String> dlg = new Dialog<>();
         dlg.setTitle("Nachfüllen");
         dlg.setHeaderText(null);
-        dlg.setContentText("Nachfüll-Code eingeben:");
+        dlg.getDialogPane().setContent(passwordField);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dlg.setResultConverter(btn -> btn == ButtonType.OK ? passwordField.getText() : null);
+
         dlg.showAndWait().ifPresent(input -> {
+            if (input == null || input.isEmpty()) return;
             if (vendingMachine.checkRestockKey(input)) {
                 vendingMachine.restockAll(input);
                 refreshStockGrid();
@@ -370,7 +379,9 @@ public class CustomerUIFX extends Application {
                 ImageView iv = loadImageView(filename, 0, 40);
                 if (iv != null) item.getChildren().add(iv);
             }
-            item.getChildren().add(new Label(name));
+            Label nameLabel = new Label(name);
+            nameLabel.setTextFill(Color.BLACK);
+            item.getChildren().add(nameLabel);
             purchaseBar.getChildren().add(item);
         }
     }

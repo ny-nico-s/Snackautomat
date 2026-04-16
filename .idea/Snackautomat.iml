@@ -7,5 +7,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="JavaFX SDK">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib/javafx.base.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib/javafx.controls.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib/javafx.graphics.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib/javafx.fxml.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib/javafx.media.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
