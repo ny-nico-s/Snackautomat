@@ -1,11 +1,7 @@
 package snackautomat;
 
 public class Product {
-<<<<<<< HEAD
-    public static final int MAX_STOCK = 10;
-=======
     public static final int MAX_STOCK = 20;
->>>>>>> main
 
     private final String productId;
     private String name;
