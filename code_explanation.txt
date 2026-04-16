@@ -1,0 +1,509 @@
+================================================================================
+  SNACKAUTOMAT — CODE EXPLANATION
+  Project: blj2025-kar-dig / Snackautomat
+  Package: snackautomat
+================================================================================
+
+This document explains every class, field, and method in the project.
+Files covered:
+  1. Starter.java
+  2. Product.java
+  3. Customer.java
+  4. VendingMachine.java
+  5. CustomerUI.java
+
+================================================================================
+1. STARTER.JAVA
+================================================================================
+
+PURPOSE
+-------
+The entry point of the application. Creates all required objects and starts
+the user interface.
+
+CODE BLOCK: main(String[] args)
+--------------------------------
+    VendingMachine machine = new VendingMachine("admin123", "refill");
+
+        Creates the vending machine with two passwords:
+        - "admin123" : the admin key for price changes, product swaps, etc.
+        - "refill"   : the public restock key any user can type in the UI.
+
+    machine.initialFill("admin123");
+
+        Fills the machine with all 18 products (15 units each). Requires the
+        admin key to prevent accidental or unauthorised filling.
+
+    Customer customer = new Customer(0, false);
+
+        Creates a customer session with 0 CHF inserted and not cancelled.
+
+    CustomerUI ui = new CustomerUI(customer, machine);
+    ui.start();
+
+        Wires the customer and machine into the UI and launches the main loop.
+
+
+================================================================================
+2. PRODUCT.JAVA
+================================================================================
+
+PURPOSE
+-------
+Represents a single product slot in the vending machine. Holds the product's
+identity, price, and stock level, and enforces the global stock cap.
+
+FIELDS
+------
+    public static final int MAX_STOCK = 20
+
+        The maximum number of units any product can hold. Declared public and
+        static so other classes (VendingMachine, CustomerUI) can read it
+        without needing a Product instance.
+
+    private final String productId
+
+        A unique identifier (e.g. "C1", "B3", "S7") used to look up a product
+        in the machine. Final because it never changes after creation.
+
+    private String name
+
+        The display name of the product (e.g. "Cola", "Twix"). Can be changed
+        by an admin via swapProduct().
+
+    private double price
+
+        The price in CHF. Must be greater than 0.
+
+    private int stock
+
+        Current number of units available. Always between 0 and MAX_STOCK.
+
+CODE BLOCKS
+-----------
+    Constructor: Product(String productId, String name, double price, int stock)
+
+        Initialises all fields. Uses Math.min(stock, MAX_STOCK) to silently
+        cap the initial stock if a value above 20 is passed in.
+
+    getProductId() / getName() / getPrice() / getStock()
+
+        Standard read-only accessors. No logic, just return the field value.
+
+    reduceStock()
+
+        Decreases stock by 1. The "if (stock > 0)" guard prevents stock from
+        going negative — a product simply stays at 0 if it is already sold out.
+
+    restock(int amount)
+
+        Adds a given number of units. Two guards:
+        - "if (amount > 0)"           : ignores zero or negative inputs.
+        - Math.min(stock + amount, MAX_STOCK) : silently caps the result at 20.
+
+    refill()
+
+        Sets stock directly to MAX_STOCK (20). Used by VendingMachine.restockAll()
+        when a user enters the restock code. Faster than calling restock() with
+        a calculated difference.
+
+    setName(String name)
+
+        Allows an admin to rename a product (used in swapProduct()).
+
+    setPrice(double price)
+
+        Updates the price. The "if (price > 0)" guard prevents setting a free
+        or negative price.
+
+    setStock(int stock)
+
+        Directly sets the stock to any valid value. Uses Math.min to enforce
+        the cap. Used by the admin swapProduct() operation.
+
+    isAvailable()
+
+        Returns true if there is at least one unit in stock. Used by CustomerUI
+        before allowing a purchase.
+
+
+================================================================================
+3. CUSTOMER.JAVA
+================================================================================
+
+PURPOSE
+-------
+Tracks the financial state of a single customer session: how much money has
+been inserted, which product is currently selected, and its price.
+
+FIELDS
+------
+    double insertedMoney
+
+        The running total of CHF the customer has fed into the machine during
+        this session. Carries over between purchases until explicitly reset.
+
+    boolean cancelled
+
+        Flags whether the customer has cancelled their current selection.
+
+    double productPrice
+
+        The price of the product the customer has most recently selected.
+
+    String selectedProduct
+
+        The name of the currently selected product.
+
+NOTE: These fields are package-private (no access modifier) so that CustomerUI,
+which is in the same package, can read them directly for display purposes.
+
+CODE BLOCKS
+-----------
+    Constructor: Customer(double insertedMoney, boolean cancelled)
+
+        Initialises the session. Called from Starter with (0, false).
+
+    insertMoney(double amount)
+
+        Adds the given amount to insertedMoney. No validation here — CustomerUI
+        validates that the amount is positive before calling this.
+
+    selectProduct(String name, double price)
+
+        Records which product the customer has chosen and its price. Called by
+        CustomerUI after the user picks from the product list.
+
+    selectProduct()   [overload, no parameters]
+
+        An empty placeholder. Left for future wiring to an inventory system.
+
+    cancelPurchase()
+
+        Sets the cancelled flag to true. Kept for possible future logic that
+        checks whether a session was cancelled.
+
+    getChange()
+
+        Returns insertedMoney minus productPrice. Represents how much change
+        the customer receives after a successful purchase.
+
+    completePurchase()
+
+        Called after a successful buy. Deducts the product price from
+        insertedMoney so the remaining balance carries over to the next purchase.
+        Clears the selection fields (productPrice, selectedProduct, cancelled).
+        Does NOT zero out insertedMoney — that only happens in resetSession().
+
+    clearSelection()
+
+        Clears the product selection fields without touching insertedMoney.
+        Called when the user presses "Kauf abbrechen" — the money stays in
+        the machine.
+
+    resetSession()
+
+        Zeroes everything: insertedMoney, productPrice, selectedProduct, and
+        cancelled. Called when the user presses "Geld zurückgeben" or
+        "Session zurücksetzen".
+
+    getInsertedMoney()
+
+        Returns the current balance. Used frequently by CustomerUI for display.
+
+    hasSufficientFunds()
+
+        Returns true if insertedMoney >= productPrice. Used by CustomerUI to
+        decide whether a purchase can proceed.
+
+    isCancelled() / setInsertedMoney() / setCancelled()
+
+        Accessors and setters for external use or future extensions.
+
+
+================================================================================
+4. VENDINGMACHINE.JAVA
+================================================================================
+
+PURPOSE
+-------
+Manages the product inventory. Knows which products exist, controls admin
+operations (price changes, swaps, individual restocks), and handles the public
+restock-by-code feature. Does NOT handle money — that belongs to Customer.
+
+FIELDS
+------
+    private final List<Product> products
+
+        The live list of all product slots. Backed by an ArrayList; exposed
+        read-only via getProducts().
+
+    private final String secretKey
+
+        The admin password ("admin123"). Required for price changes, individual
+        restocks, and product swaps.
+
+    private final String restockKey
+
+        The public restock password ("refill"). Any user can trigger a full
+        refill by entering this in the UI.
+
+    private boolean initialized
+
+        Guards against calling initialFill() more than once. Once true,
+        subsequent calls to initialFill() return immediately.
+
+CODE BLOCKS
+-----------
+    Constructor: VendingMachine(String secretKey, String restockKey)
+
+        Stores both passwords. Products are not added here — that happens in
+        initialFill() so the admin key is always required.
+
+    checkRestockKey(String input)
+
+        Returns true if the input matches the restock key. Null-safe: if null
+        is passed it returns false rather than throwing a NullPointerException.
+
+    restockAll(String keyInput)
+
+        Verifies the restock key, then calls refill() on every product, setting
+        all stocks back to MAX_STOCK (20). Throws IllegalArgumentException if
+        the key is wrong — CustomerUI catches this implicitly by checking
+        checkRestockKey() before calling this method.
+
+    initialFill(String secretKeyInput)
+
+        Requires the admin key. Adds all 18 products in three groups:
+        - Cans   (C1–C6): Fresh, Pineapple, Cola, Red Bull, Tiger, Coconut Water
+        - Bottles (B1–B4): Soda, Sparkling Water, Orange Juice, Lemonade
+        - Snacks  (S1–S8): Sweet Candy, Chocolate Bar, Twix, Mint Chips, Chips,
+                           Cheese Crackers, Strawberry Mix, Star Snack
+        All start with 15 units. Sets initialized = true when done.
+
+    checkSecretKey(String input)
+
+        Same null-safe pattern as checkRestockKey but for the admin key.
+
+    getProducts()
+
+        Returns an unmodifiable view of the product list. Callers can iterate
+        and read products but cannot add or remove entries directly.
+
+    getProduct(String productId)
+
+        Searches the list for a product with the given ID. Throws
+        IllegalArgumentException if not found. Used internally by restock(),
+        changePrice(), and swapProduct().
+
+    restock(String secretKeyInput, String productId, int amount)
+
+        Admin-only. Adds a specific amount to one product's stock (capped at
+        MAX_STOCK by Product.restock()). Validates amount > 0.
+
+    changePrice(String secretKeyInput, String productId, double newPrice)
+
+        Admin-only. Updates the price of a single product.
+
+    swapProduct(String secretKeyInput, String productId,
+                String newName, double newPrice, int newStock)
+
+        Admin-only. Replaces the name, price, and stock of an existing product
+        slot — used to change what a slot sells without adding a new product.
+
+    isInitialized()
+
+        Returns whether initialFill() has been called. Useful for checks in
+        future admin UIs.
+
+    checkSecretKeyOrThrow(String input)   [private]
+
+        Helper used by all admin methods. Throws IllegalArgumentException with
+        a clear message if the key is wrong, so each method doesn't repeat
+        the same if-block.
+
+
+================================================================================
+5. CUSTOMERUI.JAVA
+================================================================================
+
+PURPOSE
+-------
+The user interface layer. Orchestrates all interaction between the customer
+and the vending machine using Java Swing's JOptionPane dialogs. Reads state
+from Customer and VendingMachine, calls their methods based on user choices,
+and builds the visual panels shown in the main window.
+
+IMPORTS
+-------
+    java.awt.BorderLayout   — splits the main panel into LEFT and RIGHT areas.
+    java.awt.Color          — used for stock count colour coding.
+    java.awt.Component      — provides alignment constants (LEFT, CENTER).
+    java.awt.FlowLayout     — lays out purchased-product icons in a row.
+    java.awt.GridLayout     — lays out the stock counter in two columns.
+    java.awt.Image          — used for scaling images.
+    java.util.*             — ArrayList, HashMap, List, Map for collections.
+    javax.swing.*           — all Swing UI components.
+
+STATIC FIELDS
+-------------
+    PRODUCT_IMAGES   (Map<String, String>)
+
+        Maps every product name to its image filename in
+        src/snackautomat/resources/images/. Populated in a static initialiser
+        block so it is built once when the class is first loaded.
+        Products not in this map will still appear in the UI but without an image.
+
+INSTANCE FIELDS
+---------------
+    customer          — the Customer session object passed in from Starter.
+    vendingMachine    — the VendingMachine passed in from Starter.
+    machineIcon       — the vending machine image shown as the dialog icon,
+                        loaded once at construction time (300px wide).
+    sessionPurchases  — a List of product names bought in the current session.
+                        Persists across multiple purchases. Cleared on session
+                        reset or when the program exits.
+
+CODE BLOCKS
+-----------
+    Constructor: CustomerUI(Customer customer, VendingMachine vendingMachine)
+
+        Stores references and loads the machine icon once so it isn't reloaded
+        on every dialog open.
+
+    ── start() ──────────────────────────────────────────────────────────────────
+
+        The main application loop. Defines the 8 menu options and calls
+        JOptionPane.showOptionDialog() in a while(true) loop. Each iteration
+        rebuilds the message panel (buildMenuPanel()) so the stock counter and
+        inserted-money amount are always current. The loop exits when the user
+        clicks "Beenden" or closes the window (choice == -1 or 7).
+
+    ── buildMenuPanel() ─────────────────────────────────────────────────────────
+
+        Builds and returns the JPanel shown as the message inside the main dialog.
+        Uses BorderLayout with two regions:
+
+        CENTER (left panel — BoxLayout, vertical):
+          - A status label showing the inserted money balance.
+          - If sessionPurchases is not empty: a "Gekaufte Produkte" panel
+            (FlowLayout) where each purchase is shown as a product image (35px
+            tall) with the product name below it.
+
+        EAST (right panel — GridLayout, 2 columns):
+          - A "Bestand" panel listing every product with its current stock.
+          - Stock count is colour-coded:
+              RED    = 0 (sold out)
+              ORANGE = 1–5 (low stock)
+              GREEN  = 6–20 (normal)
+          - Because buildMenuPanel() is called fresh every loop iteration,
+            this counter updates automatically after every purchase or restock.
+
+    ── insertMoney() ────────────────────────────────────────────────────────────
+
+        Shows an input dialog asking for a CHF amount. Replaces commas with
+        dots to accept both "2,50" and "2.50" as valid input. Validates:
+        - Parses as a double (catches NumberFormatException if not numeric).
+        - Rejects values <= 0.
+        On success, calls customer.insertMoney() and confirms the new total.
+
+    ── selectProduct() ──────────────────────────────────────────────────────────
+
+        Shows a dropdown of all products with their prices. On selection:
+        1. Checks isAvailable() — shows a sold-out message if stock is 0.
+        2. Calls customer.selectProduct() to record the choice.
+        3. Checks hasSufficientFunds():
+           - YES: calls product.reduceStock(), adds to sessionPurchases,
+                  calls printReceipt(), then customer.completePurchase()
+                  (money carries over, selection cleared).
+           - NO:  shows a "not enough money" message with how much is missing.
+
+    ── printReceipt() ───────────────────────────────────────────────────────────
+
+        Formats a text receipt with product name, price, amount paid, and change.
+        Displayed in a plain JOptionPane dialog titled "Kassenbon". The ASCII
+        border lines give it a till-receipt appearance.
+
+    ── cancelPurchase() ─────────────────────────────────────────────────────────
+
+        Calls customer.clearSelection() — clears the product selection but keeps
+        the inserted money. Shows the remaining balance so the user knows their
+        credit is still available for another purchase.
+
+    ── returnMoney() ────────────────────────────────────────────────────────────
+
+        The only action that physically returns money. Reads the current balance,
+        calls customer.resetSession() to zero it, then displays the returned
+        amount. Shows "Kein Geld eingeworfen" if the balance is already 0.
+
+    ── showInsertedMoney() ──────────────────────────────────────────────────────
+
+        Simple info dialog showing the current inserted balance.
+
+    ── resetSession() ───────────────────────────────────────────────────────────
+
+        Asks for confirmation before resetting. On YES: zeroes the customer
+        session (including money) AND clears sessionPurchases so the bought-
+        items inventory disappears from the main window.
+
+    ── restockWithKey() ─────────────────────────────────────────────────────────
+
+        Prompts the user for the restock code. Calls vendingMachine.checkRestockKey()
+        first to validate without triggering the exception path:
+        - Correct: calls restockAll(), shows success message with MAX_STOCK value.
+        - Wrong:   shows an error dialog.
+
+    ── buildProductLabels() ─────────────────────────────────────────────────────
+
+        Builds the String array shown in the product selection dropdown. Each
+        entry is formatted as "Name — CHF X.XX". Called fresh each time
+        selectProduct() opens so prices always reflect the current state.
+
+    ── findProduct(String label) ────────────────────────────────────────────────
+
+        Matches a label string (e.g. "Cola — CHF 2.50") back to a Product object
+        by checking if the label starts with the product's name. Falls back to
+        the first product if no match is found (prevents null returns).
+
+    ── loadScaledIcon(String filename, int width, int height) ───────────────────
+
+        Loads a PNG from the classpath (/snackautomat/resources/images/),
+        scales it using Image.SCALE_SMOOTH, and wraps it in an ImageIcon.
+        Pass -1 for width or height to scale proportionally.
+        Returns null if the file is not found, so callers must null-check
+        before using the result.
+
+
+================================================================================
+  CLASS RELATIONSHIPS SUMMARY
+================================================================================
+
+  Starter
+    └── creates VendingMachine ("admin123", "refill")
+    └── creates Customer (0, false)
+    └── creates CustomerUI (customer, machine)
+         └── reads/writes Customer  (money, selection, session)
+         └── reads/writes VendingMachine  (products, restock)
+              └── owns List<Product>  (stock, price, name)
+
+  Responsibility split:
+    Product         — what is sold and how many are left
+    Customer        — who is buying and how much they have paid
+    VendingMachine  — the inventory and admin operations
+    CustomerUI      — all user interaction and screen layout
+    Starter         — wires everything together and starts the program
+
+
+================================================================================
+  PASSWORDS REFERENCE
+================================================================================
+
+    Admin key   : "admin123"   — required for initialFill(), restock(),
+                                 changePrice(), swapProduct()
+    Restock key : "refill"     — available to all users via the "Nachfüllen"
+                                 button; refills all products to 20 units
+
+
+================================================================================
+  END OF DOCUMENT
+================================================================================
