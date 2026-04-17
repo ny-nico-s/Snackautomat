@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Starter (JavaFX)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="snackautomat.Starter" />
+    <option name="VM_PARAMETERS" value="--module-path &quot;$PROJECT_DIR$/lib/javafx-sdk/lib/javafx-sdk-26/lib&quot; --add-modules javafx.controls,javafx.graphics,javafx.base,javafx.fxml" />
+    <module name="Snackautomat" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

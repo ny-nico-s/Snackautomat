@@ -7,7 +7,6 @@ public class Starter {
         machine.initialFill("admin123");
 
         Customer customer = new Customer(0, false);
-        CustomerUI ui = new CustomerUI(customer, machine);
-        ui.start();
+        CustomerUIFX.launchApp(customer, machine);
     }
 }
